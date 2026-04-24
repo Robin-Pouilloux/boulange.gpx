@@ -43,30 +43,14 @@ async function findBakeries(gpxGeoJSON) {
     const response = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`);
     const data = await response.json();
     // Afficher les boulangeries sur la carte
-    data.elements.forEach(async (bakery) => {
-    // 1. Créer un marqueur basique
+    data.elements.forEach((bakery) => {
     const marker = L.marker([bakery.lat, bakery.lon]).addTo(map);
-
-    // 2. Récupérer les détails Foursquare
-    const fsqDetails = await getFoursquareDetails(bakery.lat, bakery.lon, bakery.tags.name);
-
-    // 3. Personnaliser la popup en fonction des données disponibles
-    let popupContent = `<b>${bakery.tags.name || "Boulangerie"}</b><br>`;
-    if (fsqDetails) {
-        popupContent += `
-            Note Foursquare: ${fsqDetails.rating || "Non disponible"}<br>
-            Adresse: ${fsqDetails.location?.formatted_address || "Inconnue"}<br>
-            Catégorie: ${fsqDetails.categories?.map(c => c.name).join(", ") || "Inconnue"}
-        `;
-    } else {
-        popupContent += "Pas d'informations supplémentaires disponibles.";
-    }
-
-    // 4. Ajouter un lien vers Google Maps (pour les avis/photos)
-    popupContent += `<br><a href="https://www.google.com/maps/search/?api=1&query=${bakery.lat},${bakery.lon}" target="_blank">Voir sur Google Maps</a>`;
-
-    // 5. Associer la popup au marqueur
-    marker.bindPopup(popupContent);
+    marker.bindPopup(`
+        <b>${bakery.tags.name || "Boulangerie"}</b><br>
+        <a href="https://www.google.com/maps/search/?api=1&query=${bakery.lat},${bakery.lon}" target="_blank">
+            Voir les avis et photos sur Google Maps
+        </a>
+    `);
 });
     
 }
